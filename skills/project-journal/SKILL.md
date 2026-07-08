@@ -1,150 +1,106 @@
 ---
 name: project-journal
-description: Maintain project memory across Codex conversations using PROJECT_MEMORY.md and Obsidian daily project logs. Use when starting or resuming work in a project, when the user asks to record progress, when a task completes and should be logged, or when setting up lightweight project continuity with AGENTS.md, PROJECT_MEMORY.md, and Obsidian Markdown.
+description: Use the codex-journal plugin to automatically maintain project memory across Codex conversations with generated PROJECT_MEMORY.md files and Obsidian daily logs. Use when starting project work, initializing project journal state, resolving project context, completing a meaningful task, updating project memory, or recording task progress through the plugin scripts.
 ---
 
 # Project Journal
 
-Use this skill to preserve project continuity without relying on prior chat history. Keep project state in `PROJECT_MEMORY.md`, keep human-readable daily logs in Obsidian, and never write logs without user confirmation.
+Use this skill with the `codex-journal` plugin. Project memory and Obsidian logs are generated artifacts maintained by scripts; do not ask the user to hand-edit `PROJECT_MEMORY.md` as the normal workflow.
 
-## Startup Context Protocol
+## Startup Protocol
 
-When starting or resuming project work:
+Before project-specific work in a configured project:
 
-1. Look for `PROJECT_MEMORY.md` in the project root.
-2. If it exists, read it before making project-specific claims.
-3. Extract the Obsidian vault path, project log directory, and latest log path.
-4. Read the latest Obsidian project log if the path is present and readable.
-5. Summarize the recovered context briefly before proceeding when it affects the task.
-6. If the memory file or log is missing, state exactly what is missing and continue from available evidence.
+1. Read `PROJECT_MEMORY.md`.
+2. Read the latest Obsidian log referenced by `PROJECT_MEMORY.md`.
+3. If deterministic parsing is useful, run:
 
-Do not invent prior requirements, decisions, files, or test results. If a detail is inferred from context rather than directly read, label it as an inference.
-
-## Task Completion Logging
-
-At the end of a meaningful task, draft an Obsidian log entry before finalizing. Include only information supported by the current conversation, inspected files, or tool output.
-
-Use this structure:
-
-```md
-## HH:mm - Codex Task
-
-### Summary
-- ...
-
-### Decisions
-- ...
-
-### Changes
-- ...
-
-### Open Items
-- ...
-
-### Inferences
-- ...
-
-### Next Context For Codex
-- ...
+```bash
+python3 scripts/resolve_project_context.py --project-root <project-root>
 ```
 
-Rules:
+4. Continue only from verified project memory, logs, inspected files, tool output, and the current conversation.
+5. If memory and logs conflict, report the conflict and ask which source should win before updating either file.
 
-- Ask the user to confirm before writing to Obsidian.
-- If nothing material changed, say no log entry is needed unless the user wants one.
-- Keep entries concise enough to scan in Obsidian.
-- Separate confirmed decisions from open questions and inferences.
-- Mention verification only when it actually ran.
+Do not invent prior requirements, decisions, files, or test results. Label inferences explicitly.
 
-## Write Protocol
+## Initialization Protocol
 
-Before writing:
+When a project is not configured, initialize it with:
 
-1. Show the exact draft entry.
-2. State the target Obsidian path.
-3. Ask for confirmation.
-
-After confirmation:
-
-1. Read the existing daily log first if it exists.
-2. Append the entry under the current date.
-3. Create the daily log if it does not exist and the directory is writable.
-4. Update `PROJECT_MEMORY.md` only when project status, latest log, decisions, open questions, or next steps changed.
-
-If the Obsidian vault is outside the writable workspace or access is denied, request the required filesystem approval or provide the draft for manual insertion. Never silently skip the write after the user confirmed.
-
-## Project Memory Schema
-
-Expect this structure in `PROJECT_MEMORY.md`:
-
-```md
-# Project Memory
-
-## Project
-Name: <project-name>
-
-## Current Status
-<one-paragraph summary>
-
-## Obsidian
-Vault: <absolute-path-to-obsidian-vault>
-Project Log Dir: Projects/<project-name>/
-Latest Log: Projects/<project-name>/YYYY-MM-DD.md
-
-## Important Decisions
-- ...
-
-## Open Questions
-- ...
-
-## Next Steps
-- ...
+```bash
+python3 scripts/init_project_journal.py --project-root <project-root> --vault <obsidian-vault>
 ```
 
-Treat `Latest Log` as a pointer, not proof that it is current. If today's work is logged to a new date, update the pointer after confirmation.
+If the global config already exists, omit `--vault`:
 
-## Obsidian Daily Log Schema
-
-Use this daily log shape when creating new notes:
-
-```md
----
-date: YYYY-MM-DD
-project: <project-name>
-source: codex
----
-
-# YYYY-MM-DD
-
-## Summary
-
-## Decisions
-
-## Changes
-
-## Open Items
-
-## Inferences
-
-## Next Context For Codex
+```bash
+python3 scripts/init_project_journal.py --project-root <project-root>
 ```
 
-Prefer normal Markdown headings and bullets. Obsidian wikilinks and tags are optional; do not introduce them unless the project already uses them or the user asks.
+The script generates or updates:
 
-## Setup Protocol
+- `AGENTS.md`
+- `PROJECT_MEMORY.md`
+- the Obsidian project directory
+- today's Obsidian daily log
+- `~/.codex-journal/config.json` when `--vault` is provided
 
-When setting up a project:
+## Task Completion Protocol
 
-1. Add or adapt `AGENTS.md` so it tells Codex to use this skill.
-2. Add `PROJECT_MEMORY.md` with project status and Obsidian paths.
-3. Create the Obsidian project log directory if writable.
-4. Create or reference today's daily log.
-5. Keep project-specific facts in `PROJECT_MEMORY.md`, not in the global skill.
+At the end of meaningful work, automatically prepare a journal update. Do not wait for the user to ask for logging.
+
+1. Draft the entry from facts in the current conversation, inspected files, and tool output.
+2. Include only verification that actually ran.
+3. Separate confirmed decisions, changes, open items, inferences, and next context.
+4. Check the global `require_confirmation_before_write` setting.
+5. If confirmation is required, show the draft and target path before writing.
+6. If confirmed, append with:
+
+```bash
+python3 scripts/append_obsidian_log.py --project-root <project-root> --confirmed \
+  --summary "..." \
+  --change "..." \
+  --next-context "..."
+```
+
+7. Update project memory when status, latest log, decisions, open questions, or next steps changed:
+
+```bash
+python3 scripts/update_project_memory.py --project-root <project-root> \
+  --status "..." \
+  --latest-log "Projects/<project-slug>/YYYY-MM-DD.md" \
+  --decision "..." \
+  --next-step "..."
+```
+
+If `require_confirmation_before_write` is `false`, the append script may write without `--confirmed`.
+
+## Write Policy
+
+- Default config sets `require_confirmation_before_write` to `true`.
+- Never silently overwrite user content.
+- Existing `AGENTS.md` is preserved outside the generated Codex Journal section.
+- Existing Obsidian daily logs are appended to, not replaced.
+- If the Obsidian vault is outside the writable workspace, request filesystem approval or provide the exact command/draft for the user to run.
+
+## Generated File Expectations
+
+`PROJECT_MEMORY.md` is generated and maintained by plugin scripts. It should contain:
+
+- project name, slug, root, git remote, and detected stack
+- current status
+- Obsidian vault, project log directory, and latest log
+- important decisions
+- open questions
+- next steps
+
+`AGENTS.md` contains a generated Codex Journal section that tells future Codex conversations to read project memory and latest logs before project-specific work.
 
 ## Fallbacks
 
-- No `PROJECT_MEMORY.md`: ask whether to initialize one or continue without project memory.
-- Missing Obsidian path: use `PROJECT_MEMORY.md` only and ask for the vault path before writing logs.
-- Unreadable latest log: state the path and continue from project memory.
-- Unwritable vault: draft the log and ask for approval or manual insertion.
-- Conflicting memory and logs: report the conflict and ask which source should win before updating either file.
+- Missing global config: initialize with `--vault`.
+- Missing `PROJECT_MEMORY.md`: run `init_project_journal.py`.
+- Missing latest log: run initialization again or create the daily log through `append_obsidian_log.py --confirmed`.
+- Unwritable vault: request permission or stop with the draft and target path.
+- Unsupported hooks: use scripts directly; hooks are experimental until plugin manifest validation accepts them.

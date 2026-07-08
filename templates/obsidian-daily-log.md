@@ -1,31 +1,31 @@
 ---
-date: YYYY-MM-DD
-project: <project-name>
-source: codex
+date: {{date}}
+project: {{project_name}}
+source: codex-journal
 ---
 
-# YYYY-MM-DD
+# {{date}}
 
 ## Summary
 
-- <what changed or happened today>
+- Project journal initialized.
 
 ## Decisions
 
-- <confirmed decision>
+- Codex Journal is responsible for generated project memory and daily logs.
 
 ## Changes
 
-- <file, behavior, document, or artifact changed>
+- Created daily project log.
 
 ## Open Items
 
-- <follow-up task or unresolved question>
+- Continue recording meaningful Codex work in this log.
 
 ## Inferences
 
-- <clearly labeled inference, if any>
+- None.
 
 ## Next Context For Codex
 
-- <what the next new conversation should know first>
+- Read `PROJECT_MEMORY.md` and this latest log before project-specific work.

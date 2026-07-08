@@ -1,5 +1,7 @@
 # Project Journal MVP Implementation Plan
 
+> Superseded: this plan has been replaced by `docs/superpowers/plans/2026-07-08-codex-journal-plugin-implementation.md`. The current product direction is a repository-local Codex plugin with scripts, generated project memory, and automatic Obsidian log creation.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the repository MVP for a reusable Codex project journal Skill with project and Obsidian templates.
@@ -56,11 +58,11 @@ Create a daily log with frontmatter, summary, decisions, changes, open items, in
 
 - [x] **Step 1: Document MVP usage**
 
-Create a README explaining what the MVP is, how to copy/install the Skill, how to configure a project, and how the confirmation-before-write workflow works.
+Create a README for the historical template-only MVP. This has been superseded by the plugin README and should not be used as the current setup path.
 
-- [x] **Step 2: Document current limitations**
+- [x] **Step 2: Document historical MVP limitations**
 
-State that the MVP does not auto-discover vaults, does not require Obsidian CLI, and does not silently write logs.
+State the historical template-only MVP limitations. These limitations are superseded by the plugin implementation plan.
 
 ### Task 4: Verification
 

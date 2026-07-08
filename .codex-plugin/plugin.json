@@ -1,0 +1,35 @@
+{
+  "name": "codex-journal",
+  "version": "0.1.0",
+  "description": "Maintain Codex project memory with generated PROJECT_MEMORY.md files and Obsidian daily logs.",
+  "author": {
+    "name": "Song367"
+  },
+  "repository": "https://github.com/Song367/codex-journal",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "journal",
+    "obsidian",
+    "project-memory",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Codex Journal",
+    "shortDescription": "Project memory and Obsidian journals for Codex",
+    "longDescription": "Codex Journal initializes project memory, restores context at the start of work, and records task progress into Obsidian daily logs through a Skill and deterministic local scripts.",
+    "developerName": "Song367",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Initialize Codex Journal for this project",
+      "Restore project context from Codex Journal",
+      "Record this task in the project journal"
+    ],
+    "brandColor": "#2563EB"
+  }
+}

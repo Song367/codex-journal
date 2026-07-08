@@ -1,5 +1,7 @@
 # Project Journal MVP Design
 
+> Superseded: this design has been replaced by `docs/superpowers/specs/2026-07-08-codex-journal-plugin-design.md`. The current direction is a full `codex-journal` plugin with scripts, generated project memory, global config, and automatic Obsidian log creation.
+
 ## Purpose
 
 Create a lightweight project-memory workflow for Codex so new conversations can recover the important context of a project without rereading long prior chats. The MVP uses a global Skill, small per-project configuration files, and Obsidian Markdown logs.
