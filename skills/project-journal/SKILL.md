@@ -5,37 +5,71 @@ description: Use the codex-journal plugin to automatically maintain project memo
 
 # Project Journal
 
-Use this skill with the `codex-journal` plugin. Project memory and Obsidian logs are generated artifacts maintained by scripts; do not ask the user to hand-edit `PROJECT_MEMORY.md` as the normal workflow.
+Use this skill with the `codex-journal` plugin. Project memory and Obsidian logs are generated artifacts maintained by plugin scripts; do not ask the user to run Python commands or hand-edit `PROJECT_MEMORY.md` as the normal workflow.
+
+## User-Facing Contract
+
+The user interacts with this skill in natural language. Treat phrases like these as commands:
+
+- "启用 codex-journal"
+- "为这个项目启用项目日志"
+- "恢复项目上下文"
+- "记录本次任务"
+- "更新项目记忆"
+
+When these intents appear, run the plugin scripts yourself. Do not instruct the user to copy templates, create Markdown files, or execute terminal commands unless filesystem permissions prevent you from doing it.
+
+## Internal Command Surface
+
+Use the unified script entry point from the plugin root:
+
+```bash
+python3 scripts/codex_journal.py <command> ...
+```
+
+Supported commands:
+
+- `status`: check whether global config and project memory exist.
+- `enable`: initialize global config, project memory, AGENTS instructions, and Obsidian daily log.
+- `restore`: print project memory and latest Obsidian log as JSON.
+- `record`: draft or append a task log entry.
+- `memory`: update generated `PROJECT_MEMORY.md`.
 
 ## Startup Protocol
 
 Before project-specific work in a configured project:
 
-1. Read `PROJECT_MEMORY.md`.
-2. Read the latest Obsidian log referenced by `PROJECT_MEMORY.md`.
-3. If deterministic parsing is useful, run:
+1. Check status:
 
 ```bash
-python3 scripts/resolve_project_context.py --project-root <project-root>
+python3 scripts/codex_journal.py status --project-root <project-root>
 ```
 
-4. Continue only from verified project memory, logs, inspected files, tool output, and the current conversation.
-5. If memory and logs conflict, report the conflict and ask which source should win before updating either file.
+2. If configured, restore context:
+
+```bash
+python3 scripts/codex_journal.py restore --project-root <project-root>
+```
+
+3. Continue only from verified project memory, logs, inspected files, tool output, and the current conversation.
+4. If memory and logs conflict, report the conflict and ask which source should win before updating either file.
 
 Do not invent prior requirements, decisions, files, or test results. Label inferences explicitly.
 
 ## Initialization Protocol
 
-When a project is not configured, initialize it with:
+When a project is not configured, initialize it internally.
+
+If global config is missing, ask the user for the Obsidian vault path in natural language. After the user provides it, run:
 
 ```bash
-python3 scripts/init_project_journal.py --project-root <project-root> --vault <obsidian-vault>
+python3 scripts/codex_journal.py enable --project-root <project-root> --vault <obsidian-vault>
 ```
 
 If the global config already exists, omit `--vault`:
 
 ```bash
-python3 scripts/init_project_journal.py --project-root <project-root>
+python3 scripts/codex_journal.py enable --project-root <project-root>
 ```
 
 The script generates or updates:
@@ -55,10 +89,10 @@ At the end of meaningful work, automatically prepare a journal update. Do not wa
 3. Separate confirmed decisions, changes, open items, inferences, and next context.
 4. Check the global `require_confirmation_before_write` setting.
 5. If confirmation is required, show the draft and target path before writing.
-6. If confirmed, append with:
+6. If confirmed, append internally with:
 
 ```bash
-python3 scripts/append_obsidian_log.py --project-root <project-root> --confirmed \
+python3 scripts/codex_journal.py record --project-root <project-root> --confirmed \
   --summary "..." \
   --change "..." \
   --next-context "..."
@@ -67,7 +101,7 @@ python3 scripts/append_obsidian_log.py --project-root <project-root> --confirmed
 7. Update project memory when status, latest log, decisions, open questions, or next steps changed:
 
 ```bash
-python3 scripts/update_project_memory.py --project-root <project-root> \
+python3 scripts/codex_journal.py memory --project-root <project-root> \
   --status "..." \
   --latest-log "Projects/<project-slug>/YYYY-MM-DD.md" \
   --decision "..." \

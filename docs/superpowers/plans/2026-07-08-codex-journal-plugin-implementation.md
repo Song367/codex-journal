@@ -4,7 +4,7 @@
 
 **Goal:** Convert `codex-journal` from a template MVP into a repository-local Codex plugin with automatic project initialization and script-driven journal updates.
 
-**Architecture:** The plugin manifest exposes the existing Skill. Scripts provide deterministic setup, context resolution, project memory updates, and Obsidian log appends. Templates become internal generation assets, not instructions for users to manually edit.
+**Architecture:** The plugin manifest exposes the existing Skill. Users interact through natural language; Codex calls `scripts/codex_journal.py` as the unified internal command surface for setup, context resolution, project memory updates, and Obsidian log appends. Templates are internal generation assets, not instructions for users to manually edit.
 
 **Tech Stack:** Codex plugin manifest, Codex Skill, Python 3 standard library, Markdown, JSON.
 
@@ -27,6 +27,7 @@ Create `hooks/README.md` explaining that hooks are intentionally experimental an
 ### Task 2: Python Command Surface
 
 **Files:**
+- Create: `scripts/codex_journal.py`
 - Create: `scripts/codex_journal_common.py`
 - Create: `scripts/init_project_journal.py`
 - Create: `scripts/resolve_project_context.py`
@@ -37,19 +38,23 @@ Create `hooks/README.md` explaining that hooks are intentionally experimental an
 
 Create config loading, project analysis, generated markdown rendering, safe section replacement, and path helpers.
 
-- [x] **Step 2: Implement initialization**
+- [x] **Step 2: Implement unified internal command surface**
+
+Create `scripts/codex_journal.py` with `status`, `enable`, `restore`, `record`, and `memory` subcommands so Codex can call one stable internal entry point instead of exposing Python commands as the user interface.
+
+- [x] **Step 3: Implement initialization**
 
 Create project `AGENTS.md`, generated `PROJECT_MEMORY.md`, global config when `--vault` is passed, and the Obsidian daily note.
 
-- [x] **Step 3: Implement context resolution**
+- [x] **Step 4: Implement context resolution**
 
 Print JSON containing project memory text, latest log path, and latest log text.
 
-- [x] **Step 4: Implement memory updates**
+- [x] **Step 5: Implement memory updates**
 
 Update generated `PROJECT_MEMORY.md` fields from CLI arguments.
 
-- [x] **Step 5: Implement log appending**
+- [x] **Step 6: Implement log appending**
 
 Append a task entry to today's Obsidian note only when confirmation policy allows it or `--confirmed` is passed.
 
@@ -68,7 +73,7 @@ Make automatic startup context recovery and task-end logging the default behavio
 
 - [x] **Step 2: Rewrite README**
 
-Document plugin-local installation, global config, initialization command, and script-based workflows.
+Document natural language usage for ordinary users. Keep Python commands only in developer debugging sections.
 
 - [x] **Step 3: Rewrite templates as generated assets**
 
@@ -79,18 +84,30 @@ Clarify that templates are script inputs, not user-edit instructions.
 **Files:**
 - Test artifacts only under `/private/tmp`
 
-- [x] **Step 1: Run initialization against temp project**
+- [x] **Step 1: Check unconfigured status**
 
-Run `scripts/init_project_journal.py` with temp project, temp vault, and temp config.
+Run `scripts/codex_journal.py status` with temp project and temp config.
 
-- [x] **Step 2: Resolve generated context**
+- [x] **Step 2: Run initialization against temp project**
 
-Run `scripts/resolve_project_context.py` against the temp project and verify JSON output includes memory and log text.
+Run `scripts/codex_journal.py enable` with temp project, temp vault, and temp config.
 
-- [x] **Step 3: Append confirmed log**
+- [x] **Step 3: Resolve generated context**
 
-Run `scripts/append_obsidian_log.py --confirmed` and verify the temp Obsidian note changed.
+Run `scripts/codex_journal.py restore` against the temp project and verify JSON output includes memory and log text.
 
-- [x] **Step 4: Validate plugin and Skill**
+- [x] **Step 4: Verify confirmation policy**
+
+Run `scripts/codex_journal.py record` without `--confirmed` and verify it returns confirmation-required draft JSON.
+
+- [x] **Step 5: Append confirmed log**
+
+Run `scripts/codex_journal.py record --confirmed` and verify the temp Obsidian note changed.
+
+- [x] **Step 6: Update generated memory**
+
+Run `scripts/codex_journal.py memory` and verify generated `PROJECT_MEMORY.md` updates.
+
+- [x] **Step 7: Validate plugin and Skill**
 
 Run official plugin validator and Skill validator.
