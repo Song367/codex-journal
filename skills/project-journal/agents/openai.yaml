@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Journal"
+  short_description: "Maintain project memory with Obsidian logs"
+  default_prompt: "Use project-journal to resume this project from PROJECT_MEMORY.md and the latest Obsidian log, then draft a task log for confirmation when work is complete."
