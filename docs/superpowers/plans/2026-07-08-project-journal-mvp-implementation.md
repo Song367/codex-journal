@@ -28,7 +28,7 @@ Create `skills/project-journal/agents/openai.yaml` with a concise display name, 
 
 Run: `python3 /Users/wadesong/.codex/skills/.system/skill-creator/scripts/quick_validate.py skills/project-journal`
 
-Expected: validation succeeds. Actual: the official validator could not run because both available Python environments lacked `yaml`; frontmatter was checked with `awk` instead.
+Expected: validation succeeds. Actual: installed PyYAML into `/private/tmp/codex-journal-pydeps` and ran the official validator with `PYTHONPATH`; validation succeeded with `Skill is valid!`.
 
 ### Task 2: Templates
 
