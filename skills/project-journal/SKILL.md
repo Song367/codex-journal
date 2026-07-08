@@ -16,8 +16,23 @@ The user interacts with this skill in natural language. Treat phrases like these
 - "恢复项目上下文"
 - "记录本次任务"
 - "更新项目记忆"
+- "安装 codex-journal"
+- "注册到个人插件区"
+- "让 codex-journal 显示在个人插件"
 
 When these intents appear, run the plugin scripts yourself. Do not instruct the user to copy templates, create Markdown files, or execute terminal commands unless filesystem permissions prevent you from doing it.
+
+## Plugin Installation Protocol
+
+When the user asks to install the plugin, register it, or make it appear in the Codex app under Plugins -> Personal, run the installer from the plugin root:
+
+```bash
+python3 scripts/install_personal_plugin.py
+```
+
+This installer syncs the plugin to `~/plugins/codex-journal`, creates or updates `~/.agents/plugins/marketplace.json`, and runs `codex plugin add codex-journal@personal` when the Codex CLI is available.
+
+If filesystem permissions prevent writing to the user's home directory, request approval for that write. Do not ask the user to hand-edit `marketplace.json`.
 
 ## Internal Command Surface
 

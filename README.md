@@ -4,6 +4,25 @@ Codex Journal is a local Codex plugin for automatic project memory.
 
 After the plugin is installed, users interact with it through natural language. The Python scripts are plugin internals that Codex calls on the user's behalf.
 
+## Install To Personal Plugins
+
+The plugin should appear in the Codex app under Plugins -> Personal. Installation registers the plugin in the default personal marketplace and syncs the plugin files to the personal plugin directory.
+
+Codex runs the installer on the user's behalf:
+
+```bash
+python3 scripts/install_personal_plugin.py
+```
+
+The installer:
+
+1. Copies this plugin to `~/plugins/codex-journal`.
+2. Creates or updates `~/.agents/plugins/marketplace.json`.
+3. Adds the marketplace entry for `codex-journal`.
+4. Runs `codex plugin add codex-journal@personal` when the Codex CLI is available.
+
+Users should not manually edit `marketplace.json`.
+
 ## User Experience
 
 In a project, say:
@@ -76,6 +95,7 @@ Projects/<project-slug>/YYYY-MM-DD.md
 skills/
   project-journal/
 scripts/
+  install_personal_plugin.py
   codex_journal.py
   codex_journal_common.py
   init_project_journal.py
@@ -92,6 +112,12 @@ The unified internal command surface is:
 
 ```bash
 python3 scripts/codex_journal.py <command>
+```
+
+Register the plugin in the personal Codex plugin marketplace:
+
+```bash
+python3 scripts/install_personal_plugin.py
 ```
 
 Supported internal commands:
